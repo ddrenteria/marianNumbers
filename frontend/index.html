@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación Esotérica</title>
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel para JSX -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <!-- Estilos -->
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(198, 169, 98, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(198, 169, 98, 0.4); }
+            100% { box-shadow: 0 0 5px rgba(198, 169, 98, 0.2); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fallingStar {
+            0% {
+                transform: translateX(0) translateY(0) rotate(45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100px) translateY(100px) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes symbolAppear {
+            0% { 
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+            }
+            100% { 
+                opacity: 1;
+                transform: scale(1) rotate(360deg);
+            }
+        }
+
+        @keyframes constellationLine {
+            0% { 
+                width: 0;
+                opacity: 0;
+            }
+            100% { 
+                width: 100%;
+                opacity: 1;
+            }
+        }
+
+        :root {
+            --color-primary: #2D1B3D;
+            --color-secondary: #C6A962;
+            --color-accent: #1B4332;
+            --color-background: #0A0A0F;
+            --color-text: #F5F5F0;
+            --color-error: #8B0000;
+            --color-success: #2E7D32;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text);
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(198, 169, 98, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(45, 27, 61, 0.2) 0%, transparent 20%);
+            background-size: 100% 100%;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: var(--color-primary);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(198, 169, 98, 0.2);
+            border: 1px solid var(--color-secondary);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+            animation: glow 3s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(198, 169, 98, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 1rem 0;
+            background-color: rgba(245, 245, 240, 0.1);
+            border: 1px solid var(--color-secondary);
+            border-radius: 4px;
+            color: var(--color-text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(198, 169, 98, 0.4);
+            transform: scale(1.02);
+        }
+
+        button {
+            background-color: var(--color-accent);
+            color: var(--color-text);
+            border: 1px solid var(--color-secondary);
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background-color: var(--color-secondary);
+            color: var(--color-primary);
+            box-shadow: 0 0 15px rgba(198, 169, 98, 0.4);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: rgba(198, 169, 98, 0.1);
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1.2rem;
+            animation: glow 2s ease-in-out infinite;
+            border: 1px solid var(--color-secondary);
+        }
+
+        .title {
+            color: var(--color-secondary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(198, 169, 98, 0.3);
+            position: relative;
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 2px;
+            background: var(--color-secondary);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        #error-message {
+            color: red;
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        /* Efecto de partículas místicas */
+        .mystical-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--color-secondary);
+            border-radius: 50%;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Estrella fugaz */
+        .falling-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.8);
+            z-index: 0;
+            opacity: 0;
+        }
+
+        /* Modal de error */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--color-primary);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--color-error);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .modal-title {
+            color: var(--color-error);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .modal-message {
+            margin-bottom: 1.5rem;
+            color: var(--color-text);
+        }
+
+        .modal-button {
+            background-color: var(--color-error);
+            color: var(--color-text);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-button:hover {
+            background-color: #A00000;
+            transform: translateY(-2px);
+        }
+
+        /* Efecto de brillo en el texto */
+        .glow-text {
+            text-shadow: 0 0 5px var(--color-secondary);
+        }
+
+        /* Efecto de borde brillante */
+        .glow-border {
+            position: relative;
+        }
+
+        .glow-border::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, var(--color-secondary), transparent, var(--color-secondary));
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+
+        /* Historial de cálculos */
+        .history-container {
+            margin-top: 1.5rem;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--color-secondary);
+            border-radius: 4px;
+            padding: 0.5rem;
+            background-color: rgba(45, 27, 61, 0.5);
+        }
+
+        .history-title {
+            color: var(--color-secondary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .history-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(198, 169, 98, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-text {
+            font-size: 0.9rem;
+        }
+
+        .history-value {
+            font-weight: bold;
+            color: var(--color-secondary);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .history-button {
+            background: none;
+            border: none;
+            color: var(--color-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0.2rem;
+        }
+
+        .history-button:hover {
+            color: var(--color-text);
+        }
+
+        /* Símbolos místicos */
+        .mystical-symbols {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .symbol {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: none;
+            border: 1px solid var(--color-secondary);
+            opacity: 0;
+            animation: symbolAppear 1s ease forwards;
+        }
+
+        /* Constelación */
+        .constellation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .constellation-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--color-secondary), transparent);
+            transform-origin: left;
+            animation: constellationLine 1s ease forwards;
+        }
+
+        .constellation-point {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--color-secondary);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--color-secondary);
+        }
+
+        /* Guía mística */
+        .mystical-guide {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--color-text);
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            z-index: 20;
+        }
+
+        .mystical-guide:hover {
+            transform: scale(1.2);
+            background: var(--color-secondary);
+            color: var(--color-primary);
+        }
+
+        .guide-tooltip {
+            position: absolute;
+            bottom: 40px;
+            right: 10px;
+            background: var(--color-primary);
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--color-secondary);
+            max-width: 200px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .mystical-guide:hover .guide-tooltip {
+            opacity: 1;
+        }
+
+        /* Botón de sonido */
+        .sound-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: var(--color-accent);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: var(--color-text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            z-index: 20;
+        }
+
+        .sound-toggle:hover {
+            transform: scale(1.2);
+            background: var(--color-secondary);
+            color: var(--color-primary);
+        }
+
+        /* Animación de pulso para elementos importantes */
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="mystical-particles" id="particles"></div>
+    <div id="root"></div>
+    <div id="error-message"></div>
+    <script>
+        // Crear partículas místicas
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Crear estrella fugaz
+        function createFallingStar() {
+            const star = document.createElement('div');
+            star.className = 'falling-star';
+            
+            // Posición aleatoria en la parte superior
+            const startX = Math.random() * window.innerWidth;
+            star.style.left = startX + 'px';
+            star.style.top = '0px';
+            
+            // Tamaño aleatorio
+            const size = Math.random() * 3 + 1;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            
+            // Velocidad aleatoria
+            const duration = Math.random() * 2 + 1;
+            star.style.animation = `fallingStar ${duration}s linear forwards`;
+            
+            document.body.appendChild(star);
+            
+            // Eliminar la estrella después de la animación
+            setTimeout(() => {
+                star.remove();
+            }, duration * 1000);
+        }
+
+        // Programar estrellas fugaces aleatorias
+        function scheduleFallingStars() {
+            // Crear una estrella cada 5-15 segundos
+            const randomTime = Math.random() * 10000 + 5000;
+            setTimeout(() => {
+                createFallingStar();
+                scheduleFallingStars();
+            }, randomTime);
+        }
+
+        // Crear símbolos místicos
+        function createMysticalSymbols(container) {
+            const symbolsContainer = document.createElement('div');
+            symbolsContainer.className = 'mystical-symbols';
+            
+            // Crear 5 símbolos aleatorios
+            for (let i = 0; i < 5; i++) {
+                const symbol = document.createElement('div');
+                symbol.className = 'symbol';
+                
+                // Posición aleatoria
+                symbol.style.left = Math.random() * 80 + 10 + '%';
+                symbol.style.top = Math.random() * 80 + 10 + '%';
+                
+                // Tamaño aleatorio
+                const size = Math.random() * 15 + 10;
+                symbol.style.width = size + 'px';
+                symbol.style.height = size + 'px';
+                
+                // Rotación aleatoria
+                symbol.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                // Retraso de animación aleatorio
+                symbol.style.animationDelay = Math.random() * 2 + 's';
+                
+                symbolsContainer.appendChild(symbol);
+            }
+            
+            container.appendChild(symbolsContainer);
+        }
+
+        // Crear constelación
+        function createConstellation(container) {
+            const constellationContainer = document.createElement('div');
+            constellationContainer.className = 'constellation';
+            
+            // Crear 5 puntos de constelación
+            const points = [];
+            for (let i = 0; i < 5; i++) {
+                const point = document.createElement('div');
+                point.className = 'constellation-point';
+                
+                // Posición aleatoria
+                const left = Math.random() * 80 + 10;
+                const top = Math.random() * 80 + 10;
+                point.style.left = left + '%';
+                point.style.top = top + '%';
+                
+                points.push({ element: point, left, top });
+                constellationContainer.appendChild(point);
+            }
+            
+            // Conectar puntos con líneas
+            for (let i = 0; i < points.length - 1; i++) {
+                const line = document.createElement('div');
+                line.className = 'constellation-line';
+                
+                // Calcular longitud y ángulo
+                const dx = points[i+1].left - points[i].left;
+                const dy = points[i+1].top - points[i].top;
+                const length = Math.sqrt(dx*dx + dy*dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                // Posicionar línea
+                line.style.left = points[i].left + '%';
+                line.style.top = points[i].top + '%';
+                line.style.width = length + '%';
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                constellationContainer.appendChild(line);
+            }
+            
+            container.appendChild(constellationContainer);
+        }
+
+        // Reproducir sonido
+        function playSound(type) {
+            const sounds = {
+                click: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+                success: 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3',
+                error: 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3',
+                ambient: 'https://assets.mixkit.co/active_storage/sfx/123/123-preview.mp3'
+            };
+            
+            if (window.soundEnabled && sounds[type]) {
+                const audio = new Audio(sounds[type]);
+                audio.volume = 0.3;
+                audio.play();
+            }
+        }
+
+        // Verificación de que React está cargado
+        window.onload = function() {
+            const errorDiv = document.getElementById('error-message');
+            if (typeof React === 'undefined') {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Error: React no está cargado correctamente';
+                console.error('React no está cargado');
+            }
+            createParticles();
+            scheduleFallingStars();
+            
+            // Inicializar sonido
+            window.soundEnabled = false;
+        }
+    </script>
+    <script type="text/babel" src="./src/index.js"></script>
+</body>
+</html> 
